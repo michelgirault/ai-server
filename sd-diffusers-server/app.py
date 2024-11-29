@@ -9,14 +9,15 @@ from fastapi import FastAPI, Response
 #declare global variable and repos
 repo_id=os.environ['SD_REPO_ID']
 repo_id_loras=os.environ['SD_REPO_LORA_ID'] 
-local_dir= os.environ['SD_LOCAL_MODEL_REP']
-sd_model_name= os.environ['SD_MODEL_NAME']
-lora_model_name= os.environ['LORA_MODEL_NAME']
-single_file = "/home/michel/Documents/Dev-testing/sd-diffusers-server/sd3_medium_incl_clips.safetensors"
-ckpt_name = "/home/michel/Documents/Dev-testing/sd-diffusers-server/Hyper-SD3-8steps-CFG-lora.safetensors"
+local_dir=os.environ['SD_LOCAL_MODEL_REP']
+sd_model_name=os.environ['SD_MODEL_NAME']
+lora_model_name=os.environ['LORA_MODEL_NAME']
+
+sd3_file =sd_model_name
+lora_file =lora_model_name
 #download base model
-hf_hub_download(repo_id=repo_id,  cache_dir=local_dir, local_dir=local_dir, filename="sd3_medium_incl_clips.safetensors")
-hf_hub_download(repo_id=repo_id_loras, cache_dir=local_dir, local_dir=local_dir, filename="Hyper-SD3-8steps-CFG-lora.safetensors")
+hf_hub_download(repo_id=repo_id,  cache_dir=local_dir, local_dir=local_dir, filename=sd_model_name)
+hf_hub_download(repo_id=repo_id_loras, cache_dir=local_dir, local_dir=local_dir, filename=lora_model_name)
 #settings for quant
 quantization_config = BitsAndBytesConfig(load_in_8bit=True)
 #initiate the app
@@ -24,7 +25,7 @@ app = FastAPI()
 
 #start pipline with single file as model
 pipe = StableDiffusion3Pipeline.from_single_file(
-    single_file,
+    sd3_file,
     torch_dtype=torch.float16,
     quantization_config=quantization_config,
     text_encoder_3 = None,
@@ -32,7 +33,7 @@ pipe = StableDiffusion3Pipeline.from_single_file(
 )
 
 #load the lora weight
-pipe.load_lora_weights(ckpt_name)
+pipe.load_lora_weights(lora_file)
 
 #setup the scheduler
 pipe.scheduler = FlowMatchEulerDiscreteScheduler.from_config(pipe.scheduler.config, shift=1.0)

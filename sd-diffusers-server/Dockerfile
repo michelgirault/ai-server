@@ -45,6 +45,9 @@ RUN adduser --uid 1999 aiserver
 WORKDIR /app
 COPY . /app
 
+#install req for the app and server sd
+RUN pip install -r requirements.txt
+
 #fix permission
 RUN chown -R aiserver:aiserver /app
 
