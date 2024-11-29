@@ -1,0 +1,10 @@
+transformers==4.46.2
+huggingface_hub[cli]
+diffusers
+accelerate
+fastapi 
+gunicorn 
+uvicorn
+peft
+python-dotenv
+torch
