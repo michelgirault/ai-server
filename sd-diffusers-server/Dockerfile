@@ -40,13 +40,25 @@ RUN ${INSTALL_APT} software-properties-common \
     curl \
     g++
 
+#install ai, api and ml packages
+RUN ${INSTALL_PIP} transformers \
+    huggingface_hub[cli] \
+    diffusers \
+    accelerate \
+    fastapi \
+    gunicorn \
+    uvicorn \
+    peft \
+    python-dotenv \
+    sentencepiece \
+    protobuf \
+    bitsandbytes \
+    torch
+
 #setup user
 RUN adduser --uid 1999 aiserver
 WORKDIR /app
 COPY . /app
-
-#install req for the app and server sd
-RUN pip install -r requirements.txt
 
 #fix permission
 RUN chown -R aiserver:aiserver /app

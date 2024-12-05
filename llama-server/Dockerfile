@@ -55,6 +55,7 @@ RUN ${INSTALL_PIP} fastapi \
     uvicorn \
     sse-starlette \
     pydantic-settings \
+    ninja \
     starlette-context
 
 #setup user
@@ -62,7 +63,9 @@ RUN adduser --uid 1999 aiserver
 WORKDIR /app
 COPY . /app
 
+RUN apt -y update && apt -y upgrade
 #install server
+RUN pip install MarkupSafe
 RUN CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python
 
 #fix permission
