@@ -12,4 +12,6 @@ python3 -m llama_cpp.server --model $LLM_LOCAL_MODEL_REP$LLM_MODEL_NAME --n_gpu_
     --embedding $EMBED \
     --port 4000 \
     --host 0.0.0.0 \
+    --n_batch $BATCH \
+    --api_key $OPENAI_API_KEY \
     --n_ctx $CTX

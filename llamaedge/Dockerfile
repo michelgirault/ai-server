@@ -3,8 +3,7 @@ FROM nvidia/cuda:12.5.0-runtime-ubuntu22.04
 #setup declaration
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
-ENV GGML_CUDA=on
-
+ENV WASMEDGE_PLUGIN_PATH="/app/server/plugin"
 
 #setup declaration
 ENV DEBIAN_FRONTEND=noninteractive
@@ -40,37 +39,26 @@ RUN ${INSTALL_APT} \
     git \
     make \
     curl \
-    build-essential \
     g++
-
 #install python and additional lib
 RUN ${INSTALL_APT} \
     python3 \
-    python3-pip \
-    python3-dev \
-    python3-venv
-
-RUN ${INSTALL_PIP} fastapi \
-    pytest \
-    scikit-build \
-    setuptools \
-    uvicorn \
-    sse-starlette \
-    pydantic-settings \
-    ninja \
-    jinja2 \
-    MarkupSafe \
-    starlette-context
-
+    python3-pip
+    
 #setup user
 RUN adduser --uid 1999 aiserver
 WORKDIR /app
 COPY . /app
 
-RUN apt -y update && apt -y upgrade
 #install server
+RUN curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install_v2.sh | bash -s -- -p /app/server -c cuda-12 
+RUN wget https://github.com/LlamaEdge/LlamaEdge/releases/download/0.15.1/llama-api-server.wasm -P /app/server/
 
-RUN pip install --no-cache-dir 'llama-cpp-python>=0.3.5' --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu125
+#add extra plugin
+RUN wget https://github.com/WasmEdge/WasmEdge/releases/download/0.14.1/WasmEdge-plugin-wasi_nn-ggml-cuda-0.14.1-ubuntu20.04_x86_64.tar.gz -P /app/server
+RUN ls /app/server
+
+RUN tar -zxf /app/server/WasmEdge-plugin-wasi_nn-ggml-cuda-0.14.1-ubuntu20.04_x86_64.tar.gz --directory /app/server/plugin/
 
 #fix permission
 RUN chown -R aiserver:aiserver /app
