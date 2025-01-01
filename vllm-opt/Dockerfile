@@ -51,14 +51,9 @@ WORKDIR /app
 COPY . /app
 
 #install server
-RUN curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install_v2.sh | bash -s -- -p /app/server -c cuda-12 
-RUN wget https://github.com/LlamaEdge/LlamaEdge/releases/download/0.15.1/llama-api-server.wasm -P /app/server/
+RUN pip install vllm
 
-#add extra plugin
-RUN wget https://github.com/WasmEdge/WasmEdge/releases/download/0.14.1/WasmEdge-plugin-wasi_nn-ggml-cuda-0.14.1-ubuntu20.04_x86_64.tar.gz -P /app/server
-RUN ls /app/server
 
-RUN tar -zxf /app/server/WasmEdge-plugin-wasi_nn-ggml-cuda-0.14.1-ubuntu20.04_x86_64.tar.gz --directory /app/server/plugin/
 
 #fix permission
 RUN chown -R aiserver:aiserver /app
