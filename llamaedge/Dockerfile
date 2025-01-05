@@ -56,7 +56,6 @@ RUN wget https://github.com/LlamaEdge/LlamaEdge/releases/download/0.15.1/llama-a
 
 #add extra plugin
 RUN wget https://github.com/WasmEdge/WasmEdge/releases/download/0.14.1/WasmEdge-plugin-wasi_nn-ggml-cuda-0.14.1-ubuntu20.04_x86_64.tar.gz -P /app/server
-RUN ls /app/server
 
 RUN tar -zxf /app/server/WasmEdge-plugin-wasi_nn-ggml-cuda-0.14.1-ubuntu20.04_x86_64.tar.gz --directory /app/server/plugin/
 

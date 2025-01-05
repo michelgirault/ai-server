@@ -13,5 +13,4 @@ server/bin/wasmedge --dir .:. --env API_KEY=$LLAMA_API_KEY --nn-preload default:
     --port 4000 \
     --model-name $LLM_MODEL_NAME \
     --n-gpu-layers $GPU_LAYER \
-    --ctx-size $CTX \
-    --main-gpu $CUDA
+    --ctx-size $CTX

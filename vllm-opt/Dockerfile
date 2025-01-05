@@ -53,8 +53,6 @@ COPY . /app
 #install server
 RUN pip install vllm
 
-
-
 #fix permission
 RUN chown -R aiserver:aiserver /app
 

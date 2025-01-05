@@ -6,24 +6,29 @@ import io
 from huggingface_hub import hf_hub_download
 from diffusers import SD3Transformer2DModel, StableDiffusion3Pipeline, FlowMatchEulerDiscreteScheduler, BitsAndBytesConfig
 from fastapi import FastAPI, Depends, Query, Body, Response
-from base64 import b64encode 
+from base64 import b64encode
+import time
 
 
 #declare global variable and repos
 repo_id=os.environ['SD_REPO_ID']
-repo_id_loras=os.environ['SD_REPO_LORA_ID'] 
+#repo_id_loras=os.environ['SD_REPO_LORA_ID'] 
 local_dir=os.environ['SD_LOCAL_MODEL_REP']
 sd_model_name=os.environ['SD_MODEL_NAME']
-lora_model_name=os.environ['LORA_MODEL_NAME']
+#lora_model_name=os.environ['LORA_MODEL_NAME']
 
 #single file loader
-sd3_file = os.path.join(local_dir, sd_model_name)
-lora_file = os.path.join(local_dir, lora_model_name)
+#-sd3_file = os.path.join(local_dir, sd_model_name)
+#-lora_file = os.path.join(local_dir, lora_model_name)
 
 #download base model
 print("Download the model locally ...")
 hf_hub_download(repo_id=repo_id,  cache_dir=local_dir, local_dir=local_dir, filename=sd_model_name)
-hf_hub_download(repo_id=repo_id_loras, cache_dir=local_dir, local_dir=local_dir, filename=lora_model_name)
+
+#if needed for lora
+#hf_hub_download(repo_id=repo_id_loras, cache_dir=local_dir, local_dir=local_dir, filename=lora_model_name)
+
+#download completion
 print("done")
 #Declare settings for quant
 quantization_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.bfloat16)  
@@ -50,29 +55,15 @@ pipe = StableDiffusion3Pipeline.from_pretrained(
     torch_dtype=torch.bfloat16,
     transformer=model_nf4,
     text_encoder_3 = None,
-    tokenizer_3 = None
+    tokenizer_3 = None,
 )
 
-#load the lora weight
-#pipe.load_lora_weights(lora_file)
-
-
-#fuse the lora with the base model
-#pipe.fuse_lora(lora_scale=0.125)
 #setup the scheduler
 pipe.scheduler = FlowMatchEulerDiscreteScheduler.from_config(pipe.scheduler.config, shift=1.0)
-
-#offload to cpu
-pipe.enable_model_cpu_offload()
-
-#alternative solution
-#pipe.enable_sequential_cpu_offload()
-
-#pipe.to("cuda", dtype=torch.float16)
-#image=pipe(prompt="fantasy medieval village", height=512, width=512, num_inference_steps=12, guidance_scale=5.0).images[0]
-
-#save image in current folder
-#image.save("output.png")
+pipe = pipe.to("cuda")
+#additional optimization
+#pipe.enable_model_cpu_offload()
+pipe.enable_xformers_memory_efficient_attention()
 
 #initiate the app
 app = FastAPI()
