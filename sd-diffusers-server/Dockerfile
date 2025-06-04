@@ -53,8 +53,11 @@ RUN ${INSTALL_PIP} transformers \
     sentencepiece \
     protobuf \
     bitsandbytes \
-    torch
+    torch \
+    runpod
 
+#install xformer
+RUN ${INSTALL_PIP} xformers
 #setup user
 RUN adduser --uid 1999 aiserver
 WORKDIR /app

@@ -8,7 +8,8 @@ ENV WASMEDGE_PLUGIN_PATH="/app/server/plugin"
 #setup declaration
 ENV DEBIAN_FRONTEND=noninteractive
 ENV INSTALL_APT="apt install -y"
-ENV INSTALL_PIP="python3 -m pip --no-cache-dir install --upgrade"
+# --with no cache ENV INSTALL_PIP="python3 -m pip --no-cache-dir install --upgrade"
+ENV INSTALL_PIP="python3 -m pip install --upgrade"
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 ENV PATH="$PATH:/home/aiserver/.local/bin"
@@ -52,17 +53,20 @@ COPY . /app
 
 #install server
 RUN curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install_v2.sh | bash -s -- -p /app/server -c cuda-12 
-RUN wget https://github.com/LlamaEdge/LlamaEdge/releases/download/0.15.1/llama-api-server.wasm -P /app/server/
+RUN wget https://github.com/LlamaEdge/LlamaEdge/releases/latest/download/llama-api-server.wasm -P /app/server/
 
 #add extra plugin
 RUN wget https://github.com/WasmEdge/WasmEdge/releases/download/0.14.1/WasmEdge-plugin-wasi_nn-ggml-cuda-0.14.1-ubuntu20.04_x86_64.tar.gz -P /app/server
-
 RUN tar -zxf /app/server/WasmEdge-plugin-wasi_nn-ggml-cuda-0.14.1-ubuntu20.04_x86_64.tar.gz --directory /app/server/plugin/
+#install cli huggingface
+RUN ${INSTALL_PIP} \
+    "huggingface_hub[cli]" \
+    runpod
 
 #fix permission
 RUN chown -R aiserver:aiserver /app
 
-RUN chmod +x starter.sh
+RUN chmod +x starter.sh 
 USER aiserver
 EXPOSE 4000
 

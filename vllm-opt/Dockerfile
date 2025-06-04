@@ -51,7 +51,7 @@ WORKDIR /app
 COPY . /app
 
 #install server
-RUN pip install vllm
+RUN pip install vllm==0.8.2
 
 #fix permission
 RUN chown -R aiserver:aiserver /app

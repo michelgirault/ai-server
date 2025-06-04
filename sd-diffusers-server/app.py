@@ -61,6 +61,7 @@ pipe = StableDiffusion3Pipeline.from_pretrained(
 #setup the scheduler
 pipe.scheduler = FlowMatchEulerDiscreteScheduler.from_config(pipe.scheduler.config, shift=1.0)
 pipe = pipe.to("cuda")
+
 #additional optimization
 #pipe.enable_model_cpu_offload()
 pipe.enable_xformers_memory_efficient_attention()
